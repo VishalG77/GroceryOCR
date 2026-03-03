@@ -29,7 +29,15 @@ sessions: dict = {}
 # ─────────────────────────────────────────────────────────────────────────────
 
 def ocr_and_parse(image_url: str) -> list[dict]:
-    """Use GPT-4o Vision to OCR the image AND return structured grocery items."""
+    """Download image from Twilio, base64-encode it, send to GPT-4o Vision."""
+    import base64
+
+    # Download image using Twilio credentials (required — URL is auth-protected)
+    resp = requests.get(image_url, auth=(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN))
+    resp.raise_for_status()
+    content_type = resp.headers.get("Content-Type", "image/jpeg")
+    b64_image = base64.b64encode(resp.content).decode("utf-8")
+
     prompt = (
         "This is a photo of a grocery list. "
         "Extract every item and return ONLY a JSON array, no markdown, no explanation. "
@@ -43,7 +51,12 @@ def ocr_and_parse(image_url: str) -> list[dict]:
             {
                 "role": "user",
                 "content": [
-                    {"type": "image_url", "image_url": {"url": image_url}},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:{content_type};base64,{b64_image}"
+                        }
+                    },
                     {"type": "text", "text": prompt},
                 ],
             }
