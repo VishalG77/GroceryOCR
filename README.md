@@ -1,2 +1,1 @@
-# GroceryOCR
-created ocr for reading grocery list using whatsapp and ocr
+deployed server on render on vgupta@gmail.com, connected with same sandbox number on vishalgupta7494@gmail.com
